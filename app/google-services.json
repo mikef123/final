@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "636965589689",
+    "firebase_url": "https://myapplication-83efd.firebaseio.com",
+    "project_id": "myapplication-83efd",
+    "storage_bucket": "myapplication-83efd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:636965589689:android:c01d51687f25d984",
+        "android_client_info": {
+          "package_name": "com.valquiria.myapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "636965589689-5hp8cntovtssra9hcurpk2gbiuf8laes.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valquiria.myapplication",
+            "certificate_hash": "f2d7417d33bb72de317aad0038708582b46d72d0"
+          }
+        },
+        {
+          "client_id": "636965589689-sh8ko6tudo09ogsbfbtisib07gd01qli.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8IZ0D8OYSNPqWoIY5sSlxYVeHPGmEV-s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "636965589689-sh8ko6tudo09ogsbfbtisib07gd01qli.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

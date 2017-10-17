@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="auth_failed">Correo o usuario invalido</string>
+    <string name="correo_failed">El correo ya existe</string>
+    <string name="menulogout">Cerrar Sesión</string>
+    <string name="menuConfiguracion">Configuración</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="hintAddress">Ingrese una dirección</string>
+
+</resources>
