@@ -17,11 +17,17 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -39,15 +45,18 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int IMAGE_PICKER_REQUEST = 2;
     private static final int REQUEST_TAKE_PHOTO = 3;
-    private String name = "";
-    String mCurrentPhotoPath;
     private FirebaseAuth mAuth;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     private ProgressDialog mProgress;
+    private StorageReference mStorageRef;
+    private Uri imageUri;
+    FirebaseStorage storage = FirebaseStorage.getInstance();
+    StorageReference storageReference = storage.getReference();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        mStorageRef = FirebaseStorage.getInstance().getReference();
         String objeto = (String) getIntent().getExtras().getString("correo");
         String objeto1 = (String) getIntent().getExtras().getString("contraseña");
         setContentView(R.layout.activity_registro);
@@ -100,7 +109,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
             case IMAGE_PICKER_REQUEST:
                 if (resultCode == RESULT_OK) {
                     try {
-                        final Uri imageUri = data.getData();
+                        imageUri = data.getData();
                         final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                         final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                         image.setImageBitmap(selectedImage);
@@ -125,6 +134,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         switch (v.getId())
         {
             case R.id.button3:
+                uploadFile();
                 registros(correo.getText().toString(), contraseña.getText().toString());
                 break;
 
@@ -161,5 +171,53 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                         }
                     }
                 });
+    }
+    private void uploadFile() {
+        //if there is a file to upload
+        if (imageUri != null) {
+            //displaying a progress dialog while upload is going on
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Uploading");
+            progressDialog.show();
+
+            StorageReference riversRef = storageReference.child("images/pic.jpg");
+            riversRef.putFile(imageUri)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //if the upload is successfull
+                            //hiding the progress dialog
+                            progressDialog.dismiss();
+
+                            //and displaying a success toast
+                            Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            //if the upload is not successfull
+                            //hiding the progress dialog
+                            progressDialog.dismiss();
+
+                            //and displaying error message
+                            Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            //calculating progress percentage
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+
+                            //displaying percentage in progress dialog
+                            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
+                        }
+                    });
+        }
+        //if there is not any file
+        else {
+            //you can display an error toast
+        }
     }
 }

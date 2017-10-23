@@ -122,18 +122,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void createAccount(String email, String password)
     {
         Log.d(TAG, "createAccount" + email);
-        if(!validateForm())
+        if(!validateForm()|| !isEmailValid(email))
         {
             return;
         }
-    if(!isEmailValid(email))
-    {
-        return;
+    else {
+        Intent intent = new Intent(MainActivity.this, Registro.class);
+        intent.putExtra("correo", correo.getText().toString());
+        intent.putExtra("contraseña", contraseña.getText().toString());
+        startActivity(intent);
     }
-                            Intent intent = new Intent(MainActivity.this,Registro.class);
-                            intent.putExtra("correo", correo.getText().toString());
-                            intent.putExtra("contraseña", contraseña.getText().toString());
-                            startActivity(intent);
                         }
 
 
@@ -162,7 +160,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         else
                         {
-                            Intent intent = new Intent(MainActivity.this,MapsActivity.class);
+                            Intent intent = new Intent(MainActivity.this,Principal.class);
                             startActivity(intent);
                         }
                     }
