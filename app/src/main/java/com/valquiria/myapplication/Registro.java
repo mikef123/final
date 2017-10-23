@@ -24,6 +24,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -51,10 +53,14 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
     private Uri imageUri;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
-
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    public	static	final	String	PATH_USERS="users/";
+    Usuarios myUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        database=	FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
         String objeto = (String) getIntent().getExtras().getString("correo");
@@ -134,6 +140,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         switch (v.getId())
         {
             case R.id.button3:
+                myRef=database.getReference("message");
+                myRef.setValue("Usuario Registrado!");
                 uploadFile();
                 registros(correo.getText().toString(), contraseña.getText().toString());
                 break;
@@ -161,6 +169,14 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                                 upcrb.setDisplayName(nombre.getText().toString()+"	 "+apellido.getText().toString());
                                 upcrb.setPhotoUri(Uri.parse("path/to/pic"));//fake	 uri,	real	one	coming	soon
                                 user.updateProfile(upcrb.build());
+                                Usuarios myUser =	new	Usuarios();
+                                myUser.setName(nombre.getText().toString());
+                                myUser.setLastName(apellido.getText().toString());
+                                /* MyUser.setAge(30);
+                                MyUser.setHeight(1.80);
+                                MyUser.setWeight(80);*/
+                                myRef=database.getReference(PATH_USERS+user.getUid());
+                                myRef.setValue(myUser);
                                 startActivity(new	Intent(Registro.this,	Principal.class));	//o		en	el	listener
                             }
                         }
@@ -171,6 +187,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                         }
                     }
                 });
+
+
     }
     private void uploadFile() {
         //if there is a file to upload
