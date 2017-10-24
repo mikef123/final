@@ -52,6 +52,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +73,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Principal extends AppCompatActivity implements OnMapReadyCallback {
-
+    public static final String TAG = MainActivity.class.getSimpleName();
     private GoogleMap mMap;
     private LocationCallback mLocationCallback;
     private FirebaseAuth mAuth;
@@ -78,20 +83,27 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
     EditText mAddress;
     String la;
     String lo;
+    float latitud;
+    float longitud;
+    String nombres;
+    String id;
     private static final int localizacion = 3;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest mLocationRequest;
     public static final double lowerLeftLatitude = 4.483899;
-    public static final double lowerLeftLongitude= -74.098075;
-    public static final double upperRightLatitude= 4.836415;
-    public static final double upperRigthLongitude= -74.063224;
-
+    public static final double lowerLeftLongitude = -74.098075;
+    public static final double upperRightLatitude = 4.836415;
+    public static final double upperRigthLongitude = -74.063224;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
+    public static final String PATH_USERS = "locations/";
+    Localizacion myUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
-
+        database = FirebaseDatabase.getInstance();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mLocationRequest = createLocationRequest();
         check();
@@ -101,8 +113,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                 Location location = locationResult.getLastLocation();
                 Log.i("LOCATION", "Location	update	in	the	callback:	" + location);
                 if (location != null) {
-                    la=String.valueOf(location.getLatitude());
-                    lo=String.valueOf(location.getLongitude());
+                    la = String.valueOf(location.getLatitude());
+                    lo = String.valueOf(location.getLongitude());
                 }
             }
         };
@@ -112,51 +124,50 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         mAuth = FirebaseAuth.getInstance();
         nombre = (EditText) findViewById(R.id.nombre);
         correo = (EditText) findViewById(R.id.correo);
-        FirebaseUser user	=	mAuth.getCurrentUser();
+        FirebaseUser user = mAuth.getCurrentUser();
         nombre.setText(user.getDisplayName());
         correo.setText(user.getEmail());
         mapFragment.getMapAsync(this);
 
 
-
-
     }
-    protected	LocationRequest createLocationRequest()	 {
-        LocationRequest mLocationRequest =	new	LocationRequest();
-        mLocationRequest.setInterval(10000);	 //tasa de	refresco en	milisegundos
-        mLocationRequest.setFastestInterval(5000);	 //máxima tasa de	refresco
+
+    protected LocationRequest createLocationRequest() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);     //tasa de	refresco en	milisegundos
+        mLocationRequest.setFastestInterval(5000);     //máxima tasa de	refresco
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        return	mLocationRequest;
+        return mLocationRequest;
     }
-    public void check()
-    {
 
-        LocationSettingsRequest.Builder builder	=	new
+    public void check() {
+
+        LocationSettingsRequest.Builder builder = new
                 LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
-        SettingsClient client	 =	LocationServices.getSettingsClient(this);
-        Task<LocationSettingsResponse> task	=	client.checkLocationSettings(builder.build());
-        task.addOnSuccessListener(this,	 new	OnSuccessListener<LocationSettingsResponse>()
-        {
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
             @Override
-            public	void	onSuccess(LocationSettingsResponse locationSettingsResponse)	 {
-                startLocationUpdates();	 //Todas las condiciones para	recibir localizaciones
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                startLocationUpdates();     //Todas las condiciones para	recibir localizaciones
             }
         });
-        task.addOnFailureListener(this,	 new	OnFailureListener()	 {
+        task.addOnFailureListener(this, new OnFailureListener() {
             @Override
-            public	void	onFailure(@NonNull Exception	 e)	{
-                int statusCode =	((ApiException)	e).getStatusCode();
-                switch	(statusCode)	{
-                    case	CommonStatusCodes.RESOLUTION_REQUIRED:
+            public void onFailure(@NonNull Exception e) {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode) {
+                    case CommonStatusCodes.RESOLUTION_REQUIRED:
 //	Location	settings	are	not	satisfied,	but	this	can	be	fixed	by	showing	the	user	a	dialog.
-                        try	{//	Show	the	dialog	by	calling	startResolutionForResult(),	and	check	the	result	in	onActivityResult().
-                            ResolvableApiException resolvable	 =	(ResolvableApiException)	 e;
+                        try {//	Show	the	dialog	by	calling	startResolutionForResult(),	and	check	the	result	in	onActivityResult().
+                            ResolvableApiException resolvable = (ResolvableApiException) e;
                             resolvable.startResolutionForResult(Principal.this,
                                     localizacion);
-                        }	catch	(IntentSender.SendIntentException sendEx)	{
+                        } catch (IntentSender.SendIntentException sendEx) {
 //	Ignore	the	error.
-                        }	break;
-                    case	LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
 //	Location	settings	are	not	satisfied.	No	way	to	fix	the	settings	so	we	won't	show	the	dialog.
                         break;
                 }
@@ -165,12 +176,12 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
     }
 
-    protected	void	onActivityResult(int requestCode,	 int resultCode,	 Intent data)	 {
-        switch	(requestCode)	 {
-            case	localizacion:	 {
-                if	(resultCode ==	RESULT_OK)	 {
-                    startLocationUpdates();	 	//Se	encendió la	localización!!!
-                }	else	{
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case localizacion: {
+                if (resultCode == RESULT_OK) {
+                    startLocationUpdates();        //Se	encendió la	localización!!!
+                } else {
                     Toast.makeText(this,
                             "Sin	acceso a	localización,	hardware	deshabilitado!",
                             Toast.LENGTH_LONG).show();
@@ -180,14 +191,15 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         }
     }
 
-    private	void	startLocationUpdates()	 {
-        if	(ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION)	 ==
-                PackageManager.PERMISSION_GRANTED)	 {				//Verificación de	permiso!!
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest,	 mLocationCallback,
+    private void startLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {                //Verificación de	permiso!!
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
                     null);
         }
     }
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -200,11 +212,12 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        loadUsers();
         //mMap.setMapStyle(MapStyleOptions
         //      .loadRawResourceStyle(this, R.raw.style_json));
         // Add a marker in Sydney and move the camera
-        LatLng lugar2 = new LatLng(4.6475, -74.1014);
-        Marker bogotaAzul = mMap.addMarker(new MarkerOptions().position(lugar2).title("bici Gran Estación").icon(BitmapDescriptorFactory
+      /*   LatLng lugar2 = new LatLng(Double.parseDouble(latitud), Double.parseDouble(longitud));
+        Marker bogotaAzul = mMap.addMarker(new MarkerOptions().position(lugar2).title(nombres).icon(BitmapDescriptorFactory
                 .fromResource(R.drawable.bike))
                 .snippet("Sabados y Domingos : 8 am - 2pm") //Texto de información
                 .alpha(0.5f)); //Transparencia);
@@ -214,8 +227,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-
-   /*     LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
+/*
+       LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
         Marker ubicacion = mMap.addMarker(new MarkerOptions().position(yo).title("YO").icon(BitmapDescriptorFactory
                 .fromResource(R.drawable.bike))
                 .snippet("Aqui estoy yo") //Texto de información
@@ -226,7 +239,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-*/
+
         LatLng lugar1 = new LatLng(4.6272, -74.0639);
         Marker javeriana = mMap.addMarker(new MarkerOptions().position(lugar1).title("biciJaveriana").icon(BitmapDescriptorFactory
                 .fromResource(R.drawable.bike))
@@ -250,7 +263,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-
+*/
         final Geocoder mGeocoder = new Geocoder(getBaseContext());
         mAddress = (EditText) findViewById(R.id.texto);
         //set focus and show keyboard
@@ -261,7 +274,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if (actionId == R.id.action_custom || actionId == EditorInfo.IME_ACTION_SEND ||  actionId == EditorInfo.IME_ACTION_UNSPECIFIED|| actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == R.id.action_custom || actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_UNSPECIFIED || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
                     // hide keyboard
                     InputMethodManager inputMethodManager = (InputMethodManager) mAddress.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     inputMethodManager.hideSoftInputFromWindow(mAddress.getWindowToken(), 0);
@@ -273,31 +286,31 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         });
 
 
-
     }
 
     @Override
-    public	boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.menu,	menu);
-        return	true;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
     }
+
     @Override
-    public	boolean onOptionsItemSelected(MenuItem item){
-        int itemClicked =	item.getItemId();
-        if(itemClicked ==	R.id.menuLogOut){
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemClicked = item.getItemId();
+        if (itemClicked == R.id.menuLogOut) {
             mAuth.signOut();
-            Intent intent	=	new	Intent(Principal.this,	MainActivity.class);
+            Intent intent = new Intent(Principal.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
-        }else	if	(itemClicked ==	R.id.menuNocturno){
+        } else if (itemClicked == R.id.menuNocturno) {
             mMap.setMapStyle(MapStyleOptions
-                          .loadRawResourceStyle(this, R.raw.style_json));
+                    .loadRawResourceStyle(this, R.raw.style_json));
 //Abrir actividad para	configuración etc
         }
-        return	super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
-    public void busqueda(Geocoder mGeocoder)
-    {
+
+    public void busqueda(Geocoder mGeocoder) {
 
         //Cuando se realice la busqueda
 
@@ -336,7 +349,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                         mMap.getUiSettings().setCompassEnabled(true);
                         mMap.getUiSettings().setZoomGesturesEnabled(true);
                         mMap.getUiSettings().setZoomControlsEnabled(true);
-                        MarkerOptions marcadorDestino= new MarkerOptions();
+                        MarkerOptions marcadorDestino = new MarkerOptions();
                         marcadorDestino.position(position);
                         marcadorDestino.title("Este es tu destino");
                         //marcadorDestino.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_marcador_destino",80,80)));
@@ -347,34 +360,34 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                         downloadTask.execute(url);
 
 
-
-
-
                     }
-                } else {Toast.makeText(Principal.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();}
+                } else {
+                    Toast.makeText(Principal.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } else {Toast.makeText(Principal.this, "La dirección esta vacía", Toast.LENGTH_SHORT).show();}
+        } else {
+            Toast.makeText(Principal.this, "La dirección esta vacía", Toast.LENGTH_SHORT).show();
+        }
 
 
     }
 
 
+    private String obtenerDireccionesURL(LatLng origin, LatLng dest) {
 
-    private String obtenerDireccionesURL(LatLng origin,LatLng dest){
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
 
-        String str_origin = "origin="+origin.latitude+","+origin.longitude;
-
-        String str_dest = "destination="+dest.latitude+","+dest.longitude;
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
 
         String sensor = "sensor=false";
 
-        String parameters = str_origin+"&"+str_dest+"&"+sensor;
+        String parameters = str_origin + "&" + str_dest + "&" + sensor;
 
         String output = "json";
 
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
 
         return url;
     }
@@ -386,10 +399,10 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
             String data = "";
 
-            try{
+            try {
                 data = downloadUrl(url[0]);
-            }catch(Exception e){
-                Log.d("ERROR AL OBTENER ",e.toString());
+            } catch (Exception e) {
+                Log.d("ERROR AL OBTENER ", e.toString());
             }
             return data;
         }
@@ -403,7 +416,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             parserTask.execute(result);
         }
     }
-    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String,String>>> >{
+
+    private class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<String, String>>>> {
 
         @Override
         protected List<List<HashMap<String, String>>> doInBackground(String... jsonData) {
@@ -411,12 +425,12 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             JSONObject jObject;
             List<List<HashMap<String, String>>> routes = null;
 
-            try{
+            try {
                 jObject = new JSONObject(jsonData[0]);
                 Principal.DirectionsJSONParser parser = new Principal.DirectionsJSONParser();
 
                 routes = parser.parse(jObject);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             return routes;
@@ -428,14 +442,14 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             PolylineOptions lineOptions = null;
             MarkerOptions markerOptions = new MarkerOptions();
 
-            for(int i=0;i<result.size();i++){
+            for (int i = 0; i < result.size(); i++) {
                 points = new ArrayList<LatLng>();
                 lineOptions = new PolylineOptions();
 
                 List<HashMap<String, String>> path = result.get(i);
 
-                for(int j=0;j<path.size();j++){
-                    HashMap<String,String> point = path.get(j);
+                for (int j = 0; j < path.size(); j++) {
+                    HashMap<String, String> point = path.get(j);
 
                     double lat = Double.parseDouble(point.get("lat"));
                     double lng = Double.parseDouble(point.get("lng"));
@@ -446,18 +460,19 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
                 lineOptions.addAll(points);
                 lineOptions.width(4);
-                lineOptions.color(Color.rgb(0,0,255));
+                lineOptions.color(Color.rgb(0, 0, 255));
             }
-            if(lineOptions!=null) {
+            if (lineOptions != null) {
                 mMap.addPolyline(lineOptions);
             }
         }
     }
+
     public class DirectionsJSONParser {
 
-        public List<List<HashMap<String,String>>> parse(JSONObject jObject){
+        public List<List<HashMap<String, String>>> parse(JSONObject jObject) {
 
-            List<List<HashMap<String, String>>> routes = new ArrayList<List<HashMap<String,String>>>() ;
+            List<List<HashMap<String, String>>> routes = new ArrayList<List<HashMap<String, String>>>();
             JSONArray jRoutes = null;
             JSONArray jLegs = null;
             JSONArray jSteps = null;
@@ -466,22 +481,22 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
                 jRoutes = jObject.getJSONArray("routes");
 
-                for(int i=0;i<jRoutes.length();i++){
-                    jLegs = ( (JSONObject)jRoutes.get(i)).getJSONArray("legs");
+                for (int i = 0; i < jRoutes.length(); i++) {
+                    jLegs = ((JSONObject) jRoutes.get(i)).getJSONArray("legs");
                     List path = new ArrayList<HashMap<String, String>>();
 
-                    for(int j=0;j<jLegs.length();j++){
-                        jSteps = ( (JSONObject)jLegs.get(j)).getJSONArray("steps");
+                    for (int j = 0; j < jLegs.length(); j++) {
+                        jSteps = ((JSONObject) jLegs.get(j)).getJSONArray("steps");
 
-                        for(int k=0;k<jSteps.length();k++){
+                        for (int k = 0; k < jSteps.length(); k++) {
                             String polyline = "";
-                            polyline = (String)((JSONObject)((JSONObject)jSteps.get(k)).get("polyline")).get("points");
+                            polyline = (String) ((JSONObject) ((JSONObject) jSteps.get(k)).get("polyline")).get("points");
                             List<LatLng> list = decodePoly(polyline);
 
-                            for(int l=0;l<list.size();l++){
+                            for (int l = 0; l < list.size(); l++) {
                                 HashMap<String, String> hm = new HashMap<String, String>();
-                                hm.put("lat", Double.toString(((LatLng)list.get(l)).latitude) );
-                                hm.put("lng", Double.toString(((LatLng)list.get(l)).longitude) );
+                                hm.put("lat", Double.toString(((LatLng) list.get(l)).latitude));
+                                hm.put("lng", Double.toString(((LatLng) list.get(l)).longitude));
                                 path.add(hm);
                             }
                         }
@@ -491,7 +506,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
             } catch (JSONException e) {
                 e.toString();//printStackTrace();
-            }catch (Exception e){
+            } catch (Exception e) {
             }
 
             return routes;
@@ -536,7 +551,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         String data = "";
         InputStream iStream = null;
         HttpURLConnection urlConnection = null;
-        try{
+        try {
             URL url = new URL(strUrl);
 
             // Creamos una conexion http
@@ -553,7 +568,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             StringBuffer sb = new StringBuffer();
 
             String line = "";
-            while( ( line = br.readLine()) != null){
+            while ((line = br.readLine()) != null) {
                 sb.append(line);
             }
 
@@ -561,13 +576,45 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
             br.close();
 
-        }catch(Exception e){
+        } catch (Exception e) {
             Log.d("Exception", e.toString());
-        }finally{
+        } finally {
             iStream.close();
             urlConnection.disconnect();
         }
         return data;
+    }
+
+    public void loadUsers() {
+        myRef = database.getReference(PATH_USERS);
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+                    myUser = singleSnapshot.getValue(Localizacion.class);
+                    latitud = myUser.getLatitud();
+                    longitud = myUser.getLongitud();
+                    nombres = myUser.getNombre();
+                    LatLng lugar2 = new LatLng((latitud), (longitud));
+                    Marker bogotaAzul = mMap.addMarker(new MarkerOptions().position(lugar2).title(nombres).icon(BitmapDescriptorFactory
+                            .fromResource(R.drawable.bike))
+                            .snippet("Sabados y Domingos : 8 am - 2pm") //Texto de información
+                            .alpha(0.5f)); //Transparencia);
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(lugar2));
+                    mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+                    mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                    mMap.getUiSettings().setCompassEnabled(true);
+                    mMap.getUiSettings().setZoomGesturesEnabled(true);
+                    mMap.getUiSettings().setZoomControlsEnabled(true);
+                    //Toast.makeText(Principal.this,	name	+	":"	+	age,	Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "error	en	la	consulta", databaseError.toException());
+            }
+        });
     }
 }
 
