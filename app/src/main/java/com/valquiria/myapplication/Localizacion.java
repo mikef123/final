@@ -5,34 +5,36 @@ package com.valquiria.myapplication;
  */
 
 public class Localizacion {
-    String nombre;
-    float latitud;
-    float longitud;
+    String name;
+    Double latitude;
+    Double longitude;
+
+
 
     public Localizacion() {
-    }
+       }
 
     public String getNombre() {
-        return nombre;
+        return name;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setNombre(String name) {
+        this.name = name;
     }
 
-    public float getLatitud() {
-        return latitud;
+    public Double getLatitud() {
+        return latitude;
     }
 
-    public void setLatitud(float latitud) {
-        this.latitud = latitud;
+    public void setLatitud(Double latitud) {
+        this.latitude = latitud;
     }
 
-    public float getLongitud() {
-        return longitud;
+    public Double getLongitud() {
+        return longitude;
     }
 
-    public void setLongitud(float longitud) {
-        this.longitud = longitud;
+    public void setLongitud(Double longitud) {
+        this.longitude = longitud;
     }
 }

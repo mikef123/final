@@ -83,8 +83,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
     EditText mAddress;
     String la;
     String lo;
-    float latitud;
-    float longitud;
+    Double latitud;
+    Double longitud;
     String nombres;
     String id;
     private static final int localizacion = 3;
@@ -591,6 +591,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+                    myUser = new Localizacion();
                     myUser = singleSnapshot.getValue(Localizacion.class);
                     latitud = myUser.getLatitud();
                     longitud = myUser.getLongitud();
