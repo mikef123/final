@@ -1,5 +1,6 @@
 package com.valquiria.myapplication;
 
+import android.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -10,6 +11,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -131,7 +133,19 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
 
     }
+    public void pedirPermisoLocalizacion()
+    {
+        int permissionCheck= ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION))
+            {
 
+            }
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    localizacion);
+        }
+
+    }
     protected LocationRequest createLocationRequest() {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);     //tasa de	refresco en	milisegundos
@@ -227,8 +241,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-/*
-       LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
+*/
+      /* LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
         Marker ubicacion = mMap.addMarker(new MarkerOptions().position(yo).title("YO").icon(BitmapDescriptorFactory
                 .fromResource(R.drawable.bike))
                 .snippet("Aqui estoy yo") //Texto de información
@@ -239,7 +253,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setCompassEnabled(true);
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-
+/*
         LatLng lugar1 = new LatLng(4.6272, -74.0639);
         Marker javeriana = mMap.addMarker(new MarkerOptions().position(lugar1).title("biciJaveriana").icon(BitmapDescriptorFactory
                 .fromResource(R.drawable.bike))
@@ -305,6 +319,11 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         } else if (itemClicked == R.id.menuNocturno) {
             mMap.setMapStyle(MapStyleOptions
                     .loadRawResourceStyle(this, R.raw.style_json));
+//Abrir actividad para	configuración etc
+        } else if (itemClicked == R.id.menuSettings) {
+            Intent intent = new Intent(Principal.this, ModificarUsuario.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
 //Abrir actividad para	configuración etc
         }
         return super.onOptionsItemSelected(item);

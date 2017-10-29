@@ -9,7 +9,7 @@
         <ImageView
             android:layout_width="156dp"
             android:layout_height="105dp"
-            android:src="@drawable/firebase"
+            android:src="@drawable/cardio"
             android:layout_marginRight="8dp"
             app:layout_constraintRight_toRightOf="parent"
             android:layout_marginLeft="8dp"

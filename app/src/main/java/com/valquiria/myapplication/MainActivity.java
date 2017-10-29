@@ -189,10 +189,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public	void	onDataChange(DataSnapshot dataSnapshot)	 {
                 for	(DataSnapshot singleSnapshot :	dataSnapshot.getChildren())	{
                     Usuarios myUser =	singleSnapshot.getValue(Usuarios.class);
-                    Log.i(TAG,	"Encontró usuario:	"	+	myUser.getName());
-                    String	name	=	myUser.getName();
-                    String	lastName	=	myUser.getLastName();
-                    Toast.makeText(MainActivity.this, "Nombre: " +	name	+	"\nApellido: "	+	lastName,	Toast.LENGTH_SHORT).show();
+                    Log.i(TAG,	"Encontró usuario:	"	+	myUser.getNombre());
+                    String	name	=	myUser.getNombre();
+                    String	lastName	=	myUser.getApellido();
+                   // Toast.makeText(MainActivity.this, "Nombre: " +	name	+	"\nApellido: "	+	lastName,	Toast.LENGTH_SHORT).show();
                 }
             }
             @Override

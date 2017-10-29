@@ -5,49 +5,41 @@ package com.valquiria.myapplication;
  */
 
 public class Usuarios {
-    String	name;
-    String	lastName;
-    String	age;
-    String	height;
-    String	weight;
+    String	nombre;
+    String	apellido;
+    String	correo;
+    String	contraseña;
 
-    public String getName() {
-        return name;
+
+    public String getNombre() {
+        return nombre;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getApellido() {
+        return apellido;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
     }
 
-    public String getAge() {
-        return age;
+    public String getCorreo() {
+        return correo;
     }
 
-    public void setAge(String age) {
-        this.age = age;
+    public void setCorreo(String correo) {
+        this.correo = correo;
     }
 
-    public String getHeight() {
-        return height;
+    public String getContraseña() {
+        return contraseña;
     }
 
-    public void setHeight(String height) {
-        this.height = height;
-    }
-
-    public String getWeight() {
-        return weight;
-    }
-
-    public void setWeight(String weight) {
-        this.weight = weight;
+    public void setContraseña(String contraseña) {
+        this.contraseña = contraseña;
     }
 }

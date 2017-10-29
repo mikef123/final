@@ -10,12 +10,15 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,7 +46,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
     ImageView image;
     Button boton1;
     Button boton2;
-    Button boton3;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int IMAGE_PICKER_REQUEST = 2;
     private static final int REQUEST_TAKE_PHOTO = 3;
@@ -140,10 +142,9 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         switch (v.getId())
         {
             case R.id.button3:
+                registros(correo.getText().toString(), contraseña.getText().toString());
                 myRef=database.getReference("message");
                 myRef.setValue("Usuario Registrado!");
-                uploadFile();
-                registros(correo.getText().toString(), contraseña.getText().toString());
                 break;
 
 
@@ -169,12 +170,12 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                                 upcrb.setDisplayName(nombre.getText().toString()+"	 "+apellido.getText().toString());
                                 upcrb.setPhotoUri(Uri.parse("path/to/pic"));//fake	 uri,	real	one	coming	soon
                                 user.updateProfile(upcrb.build());
+                                uploadFile();
                                 Usuarios myUser =	new	Usuarios();
-                                myUser.setName(nombre.getText().toString());
-                                myUser.setLastName(apellido.getText().toString());
-                                /* MyUser.setAge(30);
-                                MyUser.setHeight(1.80);
-                                MyUser.setWeight(80);*/
+                                myUser.setNombre(nombre.getText().toString());
+                                myUser.setApellido(apellido.getText().toString());
+                                myUser.setCorreo(correo.getText().toString());
+                                myUser.setContraseña(contraseña.getText().toString());
                                 myRef=database.getReference(PATH_USERS+user.getUid());
                                 myRef.setValue(myUser);
                                 startActivity(new	Intent(Registro.this,	Principal.class));	//o		en	el	listener
@@ -195,10 +196,10 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         if (imageUri != null) {
             //displaying a progress dialog while upload is going on
             final ProgressDialog progressDialog = new ProgressDialog(this);
-            progressDialog.setTitle("Uploading");
-            progressDialog.show();
+           // progressDialog.setTitle("Uploading");
+            //progressDialog.show();
 
-            StorageReference riversRef = storageReference.child("images/pic.jpg");
+            StorageReference riversRef = storageReference.child("images/" + nombre + " " + apellido + ".jpg");
             riversRef.putFile(imageUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -216,7 +217,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                         public void onFailure(@NonNull Exception exception) {
                             //if the upload is not successfull
                             //hiding the progress dialog
-                            progressDialog.dismiss();
+                            //progressDialog.dismiss();
 
                             //and displaying error message
                             Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
@@ -229,7 +230,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                             double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
 
                             //displaying percentage in progress dialog
-                            progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
+                          //  progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
                         }
                     });
         }
@@ -238,4 +239,22 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
             //you can display an error toast
         }
     }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu1, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemClicked = item.getItemId();
+        if (itemClicked == R.id.menuLogOut) {
+            mAuth.signOut();
+            Intent intent = new Intent(Registro.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }
