@@ -5,7 +5,9 @@
     <string name="menulogout">Cerrar Sesión</string>
     <string name="menuConfiguracion">Editar Perfil</string>
     <string name="menuNocturno">Nocturno</string>
+    <string name="amigos">Amigos</string>
     <string name="title_activity_maps">Map</string>
-    <string name="hintAddress">Ingrese una dirección</string>
-
+    <string name="hintAddress">Ingrese punto de origen</string>
+    <string name="hintAddress1">Ingrese punto de destino</string>
+    <string name="title_activity_usuario">Usuario</string>
 </resources>

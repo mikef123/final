@@ -1,15 +1,11 @@
-<?xml	 version="1.0"	encoding="utf-8"?>
-<menu	xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menuLogOut"
         android:title="@string/menulogout"	/>
     <item
         android:id="@+id/menuSettings"
         android:title="@string/menuConfiguracion"	/>
-    <item
-        android:id="@+id/menuNocturno"
-        android:title="@string/menuNocturno"	/>
     <item
         android:id="@+id/amigos"
         android:title="@string/amigos"	/>

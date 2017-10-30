@@ -1,6 +1,7 @@
 package com.valquiria.myapplication;
 
 import android.*;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -9,6 +10,7 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -19,6 +21,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -71,10 +74,13 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-public class Principal extends AppCompatActivity implements OnMapReadyCallback {
+import static android.R.attr.name;
+
+public class Principal extends AppCompatActivity implements OnMapReadyCallback,View.OnClickListener {
     public static final String TAG = MainActivity.class.getSimpleName();
     private GoogleMap mMap;
     private LocationCallback mLocationCallback;
@@ -83,6 +89,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
     EditText nombre;
     EditText correo;
     EditText mAddress;
+    EditText mAddress1;
     String la;
     String lo;
     Double latitud;
@@ -98,13 +105,17 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
     public static final double upperRigthLongitude = -74.063224;
     FirebaseDatabase database;
     DatabaseReference myRef;
-    public static final String PATH_USERS = "locations/";
-    Localizacion myUser;
-
+    public static final String PATH_LOCATION = "locations/";
+    public static final String PATH_USERS = "users/";
+    Localizacion localiza;
+    private ProgressDialog mProgress;
+    public	final	static	double	RADIUS_OF_EARTH_KM	 =	6371;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+        findViewById(R.id.guardar).setOnClickListener(this);
+        mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mLocationRequest = createLocationRequest();
@@ -131,6 +142,68 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         correo.setText(user.getEmail());
         mapFragment.getMapAsync(this);
 
+
+    }
+    public void onClick(View v) {
+        switch (v.getId())
+        {
+            case R.id.guardar:
+                registros();
+                break;
+
+
+        }
+    }
+    private void registros() {
+        mProgress.setMessage("Guardado Ruta... Espere por favor...");
+        mProgress.show();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {    //Update	user	Info
+            UserProfileChangeRequest.Builder upcrb = new UserProfileChangeRequest.Builder();
+            Usuarios myUser = new Usuarios();
+            mAddress = (EditText) findViewById(R.id.texto);
+            mAddress1 = (EditText) findViewById(R.id.texto1);
+            Localizacion local =  new Localizacion();
+            Localizacion local1= new Localizacion();
+            String addressString = mAddress.getText().toString();
+            String addressString1 = mAddress1.getText().toString();
+            final Geocoder mGeocoder = new Geocoder(getBaseContext());
+            try {
+                List<Address> addresses = mGeocoder.getFromLocationName(
+                        addressString, 2,
+                        lowerLeftLatitude,
+                        lowerLeftLongitude,
+                        upperRightLatitude,
+                        upperRigthLongitude);
+                List<Address> addresses1 = mGeocoder.getFromLocationName(
+                        addressString1, 2,
+                        lowerLeftLatitude,
+                        lowerLeftLongitude,
+                        upperRightLatitude,
+                        upperRigthLongitude);
+                Address addressResult = addresses.get(0);
+                Address addressResult1 = addresses1.get(0);
+                //---------------------------
+                local.setLatitude(addressResult.getLatitude());
+                local.setLongitude(addressResult.getLongitude());
+                local1.setLatitude(addressResult1.getLatitude());
+                local1.setLongitude(addressResult1.getLongitude());
+                Double dis = distance(addressResult.getLatitude(),addressResult.getLongitude(),addressResult1.getLatitude(),addressResult1.getLongitude());
+                myRef = database.getReference(PATH_USERS + user.getUid());
+                myRef.child("origen").setValue(local);
+                myRef.child("destino").setValue(local1);
+                myRef.child("fecha").setValue(Calendar.getInstance().getTime());
+                myRef.child("distancia").setValue(dis);
+                myRef.child("tiempo").setValue("nublado");
+                Toast.makeText(Principal.this, "Ruta guardada",	Toast.LENGTH_SHORT).show();
+                mProgress.dismiss();
+                myRef = database.getReference("message");
+                myRef.setValue("Ruta guardada!");
+            } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        }
 
     }
     public void pedirPermisoLocalizacion()
@@ -280,18 +353,20 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 */
         final Geocoder mGeocoder = new Geocoder(getBaseContext());
         mAddress = (EditText) findViewById(R.id.texto);
+        mAddress1 = (EditText) findViewById(R.id.texto1);
         //set focus and show keyboard
         mAddress.requestFocus();
+       mAddress1.requestFocus();
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
-        mAddress.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        mAddress1.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == R.id.action_custom || actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_UNSPECIFIED || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
                     // hide keyboard
-                    InputMethodManager inputMethodManager = (InputMethodManager) mAddress.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(mAddress.getWindowToken(), 0);
+                    InputMethodManager inputMethodManager = (InputMethodManager) mAddress1.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(mAddress1.getWindowToken(), 0);
                     busqueda(mGeocoder);
                     handled = true;
                 }
@@ -326,6 +401,12 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
             startActivity(intent);
 //Abrir actividad para	configuración etc
         }
+        else if (itemClicked == R.id.amigos) {
+            Intent intent = new Intent(Principal.this, Usuario.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+//Abrir actividad para	configuración etc
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -334,7 +415,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
         //Cuando se realice la busqueda
 
         String addressString = mAddress.getText().toString();
-        if (!addressString.isEmpty()) {
+        String addressString1 = mAddress1.getText().toString();
+        if (!addressString.isEmpty() && !addressString1.isEmpty()) {
             try {
                 List<Address> addresses = mGeocoder.getFromLocationName(
                         addressString, 2,
@@ -342,13 +424,21 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                         lowerLeftLongitude,
                         upperRightLatitude,
                         upperRigthLongitude);
-                if (addresses != null && !addresses.isEmpty()) {
+                List<Address> addresses1 = mGeocoder.getFromLocationName(
+                        addressString1, 2,
+                        lowerLeftLatitude,
+                        lowerLeftLongitude,
+                        upperRightLatitude,
+                        upperRigthLongitude);
+                if (addresses != null && !addresses.isEmpty() && addresses1 != null && !addresses1.isEmpty()) {
                     Address addressResult = addresses.get(0);
+                    Address addressResult1 = addresses1.get(0);
                     LatLng position = new LatLng(addressResult.getLatitude(), addressResult.getLongitude());
+                    LatLng position1 = new LatLng(addressResult1.getLatitude(), addressResult1.getLongitude());
                     if (mMap != null) {
-                        Marker javeriana1 = mMap.addMarker(new MarkerOptions().position(position).title("lllooo").icon(BitmapDescriptorFactory
+                        Marker javeriana1 = mMap.addMarker(new MarkerOptions().position(position).title("origen").icon(BitmapDescriptorFactory
                                 .fromResource(R.drawable.bike))
-                                .snippet("jajajaj") //Texto de información
+                                .snippet("inicio") //Texto de información
                                 .alpha(0.5f)); //Transparencia);
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
                         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
@@ -356,20 +446,25 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                         mMap.getUiSettings().setCompassEnabled(true);
                         mMap.getUiSettings().setZoomGesturesEnabled(true);
                         mMap.getUiSettings().setZoomControlsEnabled(true);
+                        MarkerOptions marcadorOrigen = new MarkerOptions();
+                        marcadorOrigen.position(position);
+                        marcadorOrigen.title("Este es tu origen");
+                        //marcadorDestino.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_marcador_destino",80,80)));
+                        mMap.addMarker(marcadorOrigen);
                         //-------------------------------------------------------------------------------------------------
-                        LatLng lugar1 = new LatLng(4.6272, -74.0639);
-                        Marker javeriana = mMap.addMarker(new MarkerOptions().position(lugar1).title("biciJaveriana").icon(BitmapDescriptorFactory
+
+                        Marker javeriana = mMap.addMarker(new MarkerOptions().position(position1).title("destino").icon(BitmapDescriptorFactory
                                 .fromResource(R.drawable.bike))
-                                .snippet("Lunes a viernes : 8 am - 5pm") //Texto de información
+                                .snippet("llegada") //Texto de información
                                 .alpha(0.5f)); //Transparencia);
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(lugar1));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(position1));
                         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
                         mMap.getUiSettings().setMyLocationButtonEnabled(true);
                         mMap.getUiSettings().setCompassEnabled(true);
                         mMap.getUiSettings().setZoomGesturesEnabled(true);
                         mMap.getUiSettings().setZoomControlsEnabled(true);
                         MarkerOptions marcadorDestino = new MarkerOptions();
-                        marcadorDestino.position(position);
+                        marcadorDestino.position(position1);
                         marcadorDestino.title("Este es tu destino");
                         //marcadorDestino.icon(BitmapDescriptorFactory.fromBitmap(resizeMapIcons("ic_marcador_destino",80,80)));
                         mMap.addMarker(marcadorDestino);
@@ -478,7 +573,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                 }
 
                 lineOptions.addAll(points);
-                lineOptions.width(4);
+                lineOptions.width(8);
                 lineOptions.color(Color.rgb(0, 0, 255));
             }
             if (lineOptions != null) {
@@ -514,8 +609,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
 
                             for (int l = 0; l < list.size(); l++) {
                                 HashMap<String, String> hm = new HashMap<String, String>();
-                                hm.put("lat", Double.toString(((LatLng) list.get(l)).latitude));
-                                hm.put("lng", Double.toString(((LatLng) list.get(l)).longitude));
+                                hm.put("lat", Double.toString(list.get(l).latitude));
+                                hm.put("lng", Double.toString(list.get(l).longitude));
                                 path.add(hm);
                             }
                         }
@@ -605,16 +700,16 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
     }
 
     public void loadUsers() {
-        myRef = database.getReference(PATH_USERS);
+        myRef = database.getReference(PATH_LOCATION);
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    myUser = new Localizacion();
-                    myUser = singleSnapshot.getValue(Localizacion.class);
-                    latitud = myUser.getLatitud();
-                    longitud = myUser.getLongitud();
-                    nombres = myUser.getNombre();
+                    localiza = new Localizacion();
+                    localiza = singleSnapshot.getValue(Localizacion.class);
+                    latitud = localiza.getLatitude();
+                    longitud = localiza.getLongitude();
+                    nombres = localiza.getName();
                     LatLng lugar2 = new LatLng((latitud), (longitud));
                     Marker bogotaAzul = mMap.addMarker(new MarkerOptions().position(lugar2).title(nombres).icon(BitmapDescriptorFactory
                             .fromResource(R.drawable.bike))
@@ -635,6 +730,16 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback {
                 Log.w(TAG, "error	en	la	consulta", databaseError.toException());
             }
         });
+    }
+    public	double	distance(double	 lat1,	double	long1,	double	lat2,	double	long2)	{
+        double	latDistance =	Math.toRadians(lat1	 - lat2);
+        double	lngDistance =	Math.toRadians(long1	 - long2);
+        double	a	=	Math.sin(latDistance /	2)	*	Math.sin(latDistance /	2)
+                +	Math.cos(Math.toRadians(lat1))	 *	Math.cos(Math.toRadians(lat2))
+                *	Math.sin(lngDistance /	2)	*	Math.sin(lngDistance /	2);
+        double	c	=	2	*	Math.atan2(Math.sqrt(a),	 Math.sqrt(1	- a));
+        double	result	=	RADIUS_OF_EARTH_KM	 *	c;
+        return	Math.round(result*100.0)/100.0;
     }
 }
 

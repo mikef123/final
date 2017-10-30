@@ -7,6 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -129,6 +131,30 @@ public class ModificarUsuario extends AppCompatActivity implements View.OnClickL
                 Log.w(TAG, "error	en	la	consulta", databaseError.toException());
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemClicked = item.getItemId();
+        if (itemClicked == R.id.menuLogOut) {
+            mAuth.signOut();
+            Intent intent = new Intent(ModificarUsuario.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        else if (itemClicked == R.id.amigos) {
+            Intent intent = new Intent(ModificarUsuario.this, Usuario.class);
+            //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+//Abrir actividad para	configuración etc
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
 
