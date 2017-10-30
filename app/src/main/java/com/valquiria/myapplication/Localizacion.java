@@ -14,27 +14,27 @@ public class Localizacion {
     public Localizacion() {
        }
 
-    public String getNombre() {
+    public String getName() {
         return name;
     }
 
-    public void setNombre(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public Double getLatitud() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitud(Double latitud) {
-        this.latitude = latitud;
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
     }
 
-    public Double getLongitud() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitud(Double longitud) {
-        this.longitude = longitud;
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 }
