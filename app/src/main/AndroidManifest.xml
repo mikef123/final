@@ -34,6 +34,7 @@
     </dependency>
 
     <application
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -67,6 +68,11 @@
         <activity android:name=".ModificarUsuario" />
         <activity android:name=".Usuario" />
         <activity android:name=".Amigo"></activity>
+        <activity android:name=".ModificarUsuario" />
+        <activity android:name=".RegistroEmpresa" />
+        <activity android:name=".AgregarRutaEmpresa" />
+        <activity android:name=".PrincipalEmpresa" />
+        <activity android:name=".AgregarIndicador"></activity>
     </application>
 
 </manifest>

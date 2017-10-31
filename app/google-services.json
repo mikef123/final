@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "636965589689-iofce11toumeq2teonpisn83pan08bm1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valquiria.myapplication",
+            "certificate_hash": "0c3e47665d94f5456d2b80c0653e3720755941ab"
+          }
+        },
+        {
+          "client_id": "636965589689-6vpe3n635ui7o48lr86ocnp5hd6djssi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.valquiria.myapplication",
+            "certificate_hash": "02d6089099fd09b50bb945b06be49136f09f3c6c"
+          }
+        },
+        {
           "client_id": "636965589689-5hp8cntovtssra9hcurpk2gbiuf8laes.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
