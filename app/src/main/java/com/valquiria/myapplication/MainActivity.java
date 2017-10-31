@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         upc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                System.out.println("Entro");
                 Intent intent = new Intent(MainActivity.this, RegistroEmpresa.class);
                 startActivity(intent);
             }

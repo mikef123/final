@@ -63,14 +63,10 @@ public class RegistroEmpresa extends AppCompatActivity implements View.OnClickLi
         database=	FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        String objeto = (String) getIntent().getExtras().getString("correo");
-        String objeto1 = (String) getIntent().getExtras().getString("contraseña");
         setContentView(R.layout.activity_registro);
         nombre = (EditText) findViewById(R.id.nombre);
         correo = (EditText) findViewById(R.id.correo);
         contraseña = (EditText) findViewById(R.id.contraseña);
-        correo.setText(objeto);
-        contraseña.setText(objeto1);
         image = (ImageView) findViewById(R.id.imageView);
         boton1 = (Button) findViewById(R.id.button1);
         boton2 = (Button) findViewById(R.id.button2);
