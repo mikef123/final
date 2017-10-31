@@ -173,8 +173,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
                         else
                         {
-                            Intent intent = new Intent(MainActivity.this,Principal.class);
-                            startActivity(intent);
+                            DatabaseReference myRef2 = database.getReference(PATH_USERS + mAuth.getCurrentUser().getUid());
+                            String tipo = myRef2.child("tipo").toString();
+
+                            if(tipo.equalsIgnoreCase("persona")){
+                                Intent intent = new Intent(MainActivity.this,Principal.class);
+                                startActivity(intent);
+                            }else {
+                                Intent intent = new Intent(MainActivity.this, PrincipalEmpresa.class);
+                                startActivity(intent);
+                            }
                         }
                     }
                 });

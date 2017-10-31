@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -37,10 +36,9 @@ import com.google.firebase.storage.UploadTask;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-public class Registro extends AppCompatActivity implements View.OnClickListener{
+public class RegistroEmpresa extends AppCompatActivity implements View.OnClickListener{
     public static final String TAG = MainActivity.class.getSimpleName();
     EditText nombre;
-    EditText apellido;
     EditText correo;
     EditText contraseña;
     ImageView image;
@@ -69,7 +67,6 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         String objeto1 = (String) getIntent().getExtras().getString("contraseña");
         setContentView(R.layout.activity_registro);
         nombre = (EditText) findViewById(R.id.nombre);
-        apellido = (EditText) findViewById(R.id.apellido);
         correo = (EditText) findViewById(R.id.correo);
         contraseña = (EditText) findViewById(R.id.contraseña);
         correo.setText(objeto);
@@ -132,7 +129,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                     Bundle extras = data.getExtras();
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                     image.setImageBitmap(imageBitmap);
-                    Toast.makeText(Registro.this, "Image Saved!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistroEmpresa.this, "Image Saved!", Toast.LENGTH_SHORT).show();
                 }
 
         }
@@ -144,7 +141,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
             case R.id.button3:
                 registros(correo.getText().toString(), contraseña.getText().toString());
                 myRef=database.getReference("message");
-                myRef.setValue("Usuario Registrado!");
+                myRef.setValue("Empresa Registrado!");
                 break;
 
 
@@ -167,23 +164,22 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                             FirebaseUser user	=	mAuth.getCurrentUser();
                             if(user!=null){	//Update	user	Info
                                 UserProfileChangeRequest.Builder upcrb =	new	UserProfileChangeRequest.Builder();
-                                upcrb.setDisplayName(nombre.getText().toString()+"	 "+apellido.getText().toString());
+                                upcrb.setDisplayName(nombre.getText().toString());
                                 upcrb.setPhotoUri(Uri.parse("path/to/pic"));//fake	 uri,	real	one	coming	soon
                                 user.updateProfile(upcrb.build());
                                 uploadFile();
                                 Usuarios myUser =	new	Usuarios();
                                 myUser.setNombre(nombre.getText().toString());
-                                myUser.setApellido(apellido.getText().toString());
                                 myUser.setCorreo(correo.getText().toString());
                                 myUser.setContraseña(contraseña.getText().toString());
-                                myUser.setTipo("Persona");
+                                myUser.setTipo("Empresa");
                                 myRef=database.getReference(PATH_USERS+user.getUid());
                                 myRef.setValue(myUser);
-                                startActivity(new	Intent(Registro.this,	Principal.class));	//o		en	el	listener
+                                startActivity(new	Intent(RegistroEmpresa.this,	PrincipalEmpresa.class));	//o		en	el	listener
                             }
                         }
                         if	(!task.isSuccessful())	 {
-                            Toast.makeText(Registro.this,		R.string.auth_failed+	task.getException().toString(),
+                            Toast.makeText(RegistroEmpresa.this,		R.string.auth_failed+	task.getException().toString(),
                                     Toast.LENGTH_SHORT).show();
                             Log.e(TAG,	task.getException().getMessage());
                         }
@@ -197,10 +193,10 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         if (imageUri != null) {
             //displaying a progress dialog while upload is going on
             final ProgressDialog progressDialog = new ProgressDialog(this);
-           // progressDialog.setTitle("Uploading");
+            // progressDialog.setTitle("Uploading");
             //progressDialog.show();
 
-            StorageReference riversRef = storageReference.child("images/" + nombre + " " + apellido + ".jpg");
+            StorageReference riversRef = storageReference.child("images/" + nombre + ".jpg");
             riversRef.putFile(imageUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -231,7 +227,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                             double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
 
                             //displaying percentage in progress dialog
-                          //  progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
+                            //  progressDialog.setMessage("Uploaded " + ((int) progress) + "%...");
                         }
                     });
         }
@@ -251,7 +247,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         int itemClicked = item.getItemId();
         if (itemClicked == R.id.menuLogOut) {
             mAuth.signOut();
-            Intent intent = new Intent(Registro.this, MainActivity.class);
+            Intent intent = new Intent(RegistroEmpresa.this, MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
