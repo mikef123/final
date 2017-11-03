@@ -1,6 +1,11 @@
 package com.valquiria.myapplication;
+        import android.*;
+        import android.Manifest;
         import android.content.Intent;
+        import android.content.pm.PackageManager;
         import android.support.annotation.NonNull;
+        import android.support.v4.app.ActivityCompat;
+        import android.support.v4.content.ContextCompat;
         import android.support.v7.app.AppCompatActivity;
         import android.os.Bundle;
         import android.text.TextUtils;
@@ -36,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     DatabaseReference myRef;
     public	static	final	String	PATH_USERS="users/";
     Usuarios myUser;
-
+    private static final int localizacion = 3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,8 +128,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId())
         {
             case R.id.login:
-                loadUsers();
-                login(correo.getText().toString(), contraseña.getText().toString());
+                if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+
+                    pedirPermisoLocalizacion();
+
+                } else {
+
+                    loadUsers();
+                    login(correo.getText().toString(), contraseña.getText().toString());
+                }
+
 
                 break;
             case R.id.sign:
@@ -187,11 +201,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             DatabaseReference myRef2 = database.getReference(PATH_USERS + mAuth.getCurrentUser().getUid());
                             String tipo = myRef2.child("tipo").toString();
 
-                            if(tipo.equalsIgnoreCase("persona")){
-                                Intent intent = new Intent(MainActivity.this,Principal.class);
+                            if(tipo.equalsIgnoreCase("empresa")){
+                                Intent intent = new Intent(MainActivity.this,PrincipalEmpresa.class);
                                 startActivity(intent);
                             }else {
-                                Intent intent = new Intent(MainActivity.this, PrincipalEmpresa.class);
+                                Intent intent = new Intent(MainActivity.this, Principal.class);
                                 startActivity(intent);
                             }
                         }
@@ -200,7 +214,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     }
+    public void pedirPermisoLocalizacion()
+    {
+        int permissionCheck= ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if(ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.ACCESS_FINE_LOCATION))
+            {
 
+            }
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    localizacion);
+        }
+
+    }
     public	void	loadUsers()	{
         myRef =	database.getReference(PATH_USERS);
         myRef. addValueEventListener(new	ValueEventListener()	{

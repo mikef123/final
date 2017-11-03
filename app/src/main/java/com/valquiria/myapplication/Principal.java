@@ -1,6 +1,7 @@
 package com.valquiria.myapplication;
 
 import android.*;
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -117,20 +118,6 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         findViewById(R.id.guardar).setOnClickListener(this);
         mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        mLocationRequest = createLocationRequest();
-        check();
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                Location location = locationResult.getLastLocation();
-                Log.i("LOCATION", "Location	update	in	the	callback:	" + location);
-                if (location != null) {
-                    la = String.valueOf(location.getLatitude());
-                    lo = String.valueOf(location.getLongitude());
-                }
-            }
-        };
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -141,6 +128,32 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         nombre.setText(user.getDisplayName());
         correo.setText(user.getEmail());
         mapFragment.getMapAsync(this);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mLocationRequest = createLocationRequest();
+        check();
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                Log.i("LOCATION", "Location	update	in	the	callback:	" + location);
+                if (location != null) {
+                    la=String.valueOf(location.getLatitude());
+                    lo=String.valueOf(location.getLongitude());
+
+                }
+            }
+        };
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this,	 new
+                OnSuccessListener<Location>()	 {
+                    @Override
+                    public	void	onSuccess(Location	 location)	 {
+                        Log.i("LOCATION",	 "onSuccess location");
+                        if	(location	 !=	null)	{
+                            la=String.valueOf(location.getLatitude());
+                            lo=String.valueOf(location.getLongitude());
+                        }
+                    }
+                    });
 
 
     }
@@ -229,32 +242,32 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
 
     public void check() {
 
-        LocationSettingsRequest.Builder builder = new
+        LocationSettingsRequest.Builder builder	=	new
                 LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
-        SettingsClient client = LocationServices.getSettingsClient(this);
-        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
-        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+        SettingsClient client	 =	LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task	=	client.checkLocationSettings(builder.build());
+        task.addOnSuccessListener(this,	 new	OnSuccessListener<LocationSettingsResponse>()
+        {
             @Override
-            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
-                startLocationUpdates();     //Todas las condiciones para	recibir localizaciones
+            public	void	onSuccess(LocationSettingsResponse locationSettingsResponse)	 {
+                startLocationUpdates();	 //Todas las condiciones para	recibir localizaciones
             }
         });
-        task.addOnFailureListener(this, new OnFailureListener() {
+        task.addOnFailureListener(this,	 new	OnFailureListener()	 {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                int statusCode = ((ApiException) e).getStatusCode();
-                switch (statusCode) {
-                    case CommonStatusCodes.RESOLUTION_REQUIRED:
+            public	void	onFailure(@NonNull Exception	 e)	{
+                int statusCode =	((ApiException)	e).getStatusCode();
+                switch	(statusCode)	{
+                    case	CommonStatusCodes.RESOLUTION_REQUIRED:
 //	Location	settings	are	not	satisfied,	but	this	can	be	fixed	by	showing	the	user	a	dialog.
-                        try {//	Show	the	dialog	by	calling	startResolutionForResult(),	and	check	the	result	in	onActivityResult().
-                            ResolvableApiException resolvable = (ResolvableApiException) e;
+                        try	{//	Show	the	dialog	by	calling	startResolutionForResult(),	and	check	the	result	in	onActivityResult().
+                            ResolvableApiException resolvable	 =	(ResolvableApiException)	 e;
                             resolvable.startResolutionForResult(Principal.this,
                                     localizacion);
-                        } catch (IntentSender.SendIntentException sendEx) {
+                        }	catch	(IntentSender.SendIntentException sendEx)	{
 //	Ignore	the	error.
-                        }
-                        break;
-                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        }	break;
+                    case	LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
 //	Location	settings	are	not	satisfied.	No	way	to	fix	the	settings	so	we	won't	show	the	dialog.
                         break;
                 }
@@ -263,12 +276,12 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
 
     }
 
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case localizacion: {
-                if (resultCode == RESULT_OK) {
-                    startLocationUpdates();        //Se	encendió la	localización!!!
-                } else {
+    protected	void	onActivityResult(int requestCode,	 int resultCode,	 Intent data)	 {
+        switch	(requestCode)	 {
+            case	localizacion:	 {
+                if	(resultCode ==	RESULT_OK)	 {
+                    startLocationUpdates();	 	//Se	encendió la	localización!!!
+                }	else	{
                     Toast.makeText(this,
                             "Sin	acceso a	localización,	hardware	deshabilitado!",
                             Toast.LENGTH_LONG).show();
@@ -278,15 +291,14 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         }
     }
 
-    private void startLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) ==
-                PackageManager.PERMISSION_GRANTED) {                //Verificación de	permiso!!
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback,
+    private	void	startLocationUpdates()	 {
+        if	(ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)	 ==
+                PackageManager.PERMISSION_GRANTED)	 {				//Verificación de	permiso!!
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest,	 mLocationCallback,
                     null);
         }
     }
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -296,6 +308,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -315,7 +328,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
 */
-      /* LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
+      /*
+      LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
         Marker ubicacion = mMap.addMarker(new MarkerOptions().position(yo).title("YO").icon(BitmapDescriptorFactory
                 .fromResource(R.drawable.bike))
                 .snippet("Aqui estoy yo") //Texto de información
@@ -402,7 +416,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
 //Abrir actividad para	configuración etc
         }
         else if (itemClicked == R.id.amigos) {
-            Intent intent = new Intent(Principal.this, Usuario.class);
+            Intent intent = new Intent(Principal.this, Amigo.class);
             //intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
 //Abrir actividad para	configuración etc
@@ -723,6 +737,17 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                     mMap.getUiSettings().setZoomControlsEnabled(true);
                     //Toast.makeText(Principal.this,	name	+	":"	+	age,	Toast.LENGTH_SHORT).show();
                 }
+                LatLng yo = new LatLng(Float.valueOf(la), Float.valueOf(lo));
+                Marker ubicacion = mMap.addMarker(new MarkerOptions().position(yo).title("YO").icon(BitmapDescriptorFactory
+                        .fromResource(R.drawable.bike))
+                        .snippet("Aqui estoy yo") //Texto de información
+                        .alpha(0.5f)); //Transparencia);
+                mMap.moveCamera(CameraUpdateFactory.newLatLng(yo));
+                mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                mMap.getUiSettings().setCompassEnabled(true);
+                mMap.getUiSettings().setZoomGesturesEnabled(true);
+                mMap.getUiSettings().setZoomControlsEnabled(true);
             }
 
             @Override
@@ -741,7 +766,17 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         double	result	=	RADIUS_OF_EARTH_KM	 *	c;
         return	Math.round(result*100.0)/100.0;
     }
-}
+
+
+
+
+
+    }
+
+
+
+
+
 
 
 

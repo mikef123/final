@@ -62,8 +62,7 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
 
 
         loadUsers();
-        adaptador = new ArrayAdapter<String>(Usuario.this,android.R.layout.simple_list_item_1,ejemploLista);
-        lista.setAdapter(adaptador);
+
 
 
 
@@ -79,6 +78,7 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
                     public void onItemClick(AdapterView<?> parent, View v, int posicion, long id) {
                         String nombre = String.valueOf(lista.getItemAtPosition(posicion));
                         registros(nombre);
+                        ejemploLista.clear();
                         Toast.makeText(Usuario.this,"Amigo Adicionado",Toast.LENGTH_SHORT).show();
                         startActivity(new	Intent(Usuario.this,	Amigo.class));	//o		en	el	listener
                     }
@@ -112,6 +112,7 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
     }
     public void loadUsers() {
         myRef = database.getReference(PATH_USERS);
+        ejemploLista.clear();
         myRef. addValueEventListener(new	ValueEventListener()	{
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -121,12 +122,8 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
                     ejemploLista.add(myUser.getNombre().toString() + " " + myUser.getApellido().toString());
                                     }
 
-
-
-
-
-
-
+                adaptador = new ArrayAdapter<String>(Usuario.this,android.R.layout.simple_list_item_1,ejemploLista);
+                lista.setAdapter(adaptador);
             }
 
             @Override
@@ -144,10 +141,12 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
 
                             FirebaseUser user	=	mAuth.getCurrentUser();
                             if(user!=null){	//Update	user	Info
+                                Usuarios usu =  new Usuarios();
                                 DatabaseReference dbRef =
                                         FirebaseDatabase.getInstance().getReference()
                                                 .child(PATH_USERS + user.getUid());
-                                dbRef.child("Amigos").push().setValue(nombre);
+                                usu.setNombre(nombre);
+                                dbRef.child("Amigos").push().setValue(usu);
 
                                 //myRef.child("Amigos").setValue(nombre);
                                 mProgress.dismiss();
