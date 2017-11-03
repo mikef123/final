@@ -57,6 +57,7 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
         mAuth = FirebaseAuth.getInstance();
         lista = (ListView)findViewById(R.id.list);
         findViewById(R.id.adicionar).setOnClickListener(this);
+        findViewById(R.id.amigos).setOnClickListener(this);
         database = FirebaseDatabase.getInstance();
         mProgress = new ProgressDialog(this);
 
@@ -84,7 +85,14 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
                     }
                 });
                 break;
-
+            case R.id.amigos:
+                lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View v, int posicion, long id) {
+                       startActivity(new	Intent(Usuario.this,	Amigo.class));	//o		en	el	listener
+                    }
+                });
+                break;
 
         }
     }
