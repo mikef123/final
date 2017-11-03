@@ -26,7 +26,10 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -87,8 +90,6 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     private LocationCallback mLocationCallback;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    EditText nombre;
-    EditText correo;
     EditText mAddress;
     EditText mAddress1;
     String la;
@@ -111,6 +112,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     Localizacion localiza;
     private ProgressDialog mProgress;
     public	final	static	double	RADIUS_OF_EARTH_KM	 =	6371;
+   Spinner spinner;
+    String[] letra = {"Nublado","Soleado","Lluvioso","Despejado",};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,15 +121,15 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         findViewById(R.id.guardar).setOnClickListener(this);
         mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
+        spinner = (Spinner) findViewById(R.id.spinner);
+        spinner.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, letra));
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mAuth = FirebaseAuth.getInstance();
-        nombre = (EditText) findViewById(R.id.nombre);
-        correo = (EditText) findViewById(R.id.correo);
         FirebaseUser user = mAuth.getCurrentUser();
-        nombre.setText(user.getDisplayName());
-        correo.setText(user.getEmail());
+        /*nombre.setText(user.getDisplayName());
+        correo.setText(user.getEmail());*/
         mapFragment.getMapAsync(this);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         mLocationRequest = createLocationRequest();
@@ -207,6 +210,19 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                 myRef.child("destino").setValue(local1);
                 myRef.child("fecha").setValue(Calendar.getInstance().getTime());
                 myRef.child("distancia").setValue(dis);
+                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id)
+                    {
+                        myRef.child("distancia").setValue(adapterView.getItemAtPosition(pos));
+
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent)
+                    {    }
+                });
                 myRef.child("tiempo").setValue("nublado");
                 Toast.makeText(Principal.this, "Ruta guardada",	Toast.LENGTH_SHORT).show();
                 mProgress.dismiss();
