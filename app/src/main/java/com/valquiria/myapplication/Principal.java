@@ -70,6 +70,7 @@ import com.google.firebase.database.ValueEventListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -92,6 +93,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     private FirebaseAuth.AuthStateListener mAuthListener;
     EditText mAddress;
     EditText mAddress1;
+    TextView kilometros;
     String la;
     String lo;
     Double latitud;
@@ -113,12 +115,14 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     private ProgressDialog mProgress;
     public	final	static	double	RADIUS_OF_EARTH_KM	 =	6371;
    Spinner spinner;
-    String[] letra = {"Nublado","Soleado","Lluvioso","Despejado",};
+    String tiempo;
+    String[] letra = {" ", "Nublado","Soleado","Lluvioso","Despejado",};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
         findViewById(R.id.guardar).setOnClickListener(this);
+        kilometros = (TextView) findViewById(R.id.kilometros);
         mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
         spinner = (Spinner) findViewById(R.id.spinner);
@@ -158,7 +162,19 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                     }
                     });
 
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id)
+            {
+               tiempo=(String) adapterView.getItemAtPosition(pos);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent)
+            {    }
+        });
     }
     public void onClick(View v) {
         switch (v.getId())
@@ -179,6 +195,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
             Usuarios myUser = new Usuarios();
             mAddress = (EditText) findViewById(R.id.texto);
             mAddress1 = (EditText) findViewById(R.id.texto1);
+            Ruta ruta = new Ruta();
             Localizacion local =  new Localizacion();
             Localizacion local1= new Localizacion();
             String addressString = mAddress.getText().toString();
@@ -205,25 +222,20 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                 local1.setLatitude(addressResult1.getLatitude());
                 local1.setLongitude(addressResult1.getLongitude());
                 Double dis = distance(addressResult.getLatitude(),addressResult.getLongitude(),addressResult1.getLatitude(),addressResult1.getLongitude());
+                ruta.setOrigen(local);
+                ruta.setDestino(local1);
+                ruta.setDistancia(dis);
+                ruta.setFecha(Calendar.getInstance().getTime());
+                ruta.setTiempo(tiempo);
                 myRef = database.getReference(PATH_USERS + user.getUid());
                 myRef.child("origen").setValue(local);
                 myRef.child("destino").setValue(local1);
                 myRef.child("fecha").setValue(Calendar.getInstance().getTime());
                 myRef.child("distancia").setValue(dis);
-                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                myRef.child("tiempo").setValue(tiempo);
+                myRef.child("Ruta").push().setValue(ruta);
 
-                    @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long id)
-                    {
-                        myRef.child("distancia").setValue(adapterView.getItemAtPosition(pos));
 
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent)
-                    {    }
-                });
-                myRef.child("tiempo").setValue("nublado");
                 Toast.makeText(Principal.this, "Ruta guardada",	Toast.LENGTH_SHORT).show();
                 mProgress.dismiss();
                 myRef = database.getReference("message");
@@ -386,7 +398,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         mAddress1 = (EditText) findViewById(R.id.texto1);
         //set focus and show keyboard
         mAddress.requestFocus();
-       mAddress1.requestFocus();
+
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
 
         mAddress1.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -502,8 +514,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                         String url = obtenerDireccionesURL(javeriana.getPosition(), position);
                         Principal.DownloadTask downloadTask = new Principal.DownloadTask();
                         downloadTask.execute(url);
-
-
+                        Double dis = distance(addressResult.getLatitude(),addressResult.getLongitude(),addressResult1.getLatitude(),addressResult1.getLongitude());
+                        kilometros.setText(String.valueOf(dis));
                     }
                 } else {
                     Toast.makeText(Principal.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();

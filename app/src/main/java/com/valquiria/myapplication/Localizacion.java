@@ -10,8 +10,7 @@ public class Localizacion {
     String name;
     Double latitude;
     Double longitude;
-    Date fecha;
-    String duracion;
+
 
 
 
@@ -42,11 +41,5 @@ public class Localizacion {
         this.longitude = longitude;
     }
 
-    public Date getFecha(){ return fecha; }
 
-    public void setFecha(Date fecha){ this.fecha = fecha; }
-
-    public String getDuracion(){ return duracion; }
-
-    public void setDuracion(String duracion){ this.duracion = duracion; }
 }

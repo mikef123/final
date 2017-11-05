@@ -205,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Intent intent = new Intent(MainActivity.this,PrincipalEmpresa.class);
                                 startActivity(intent);
                             }else {
-                                Intent intent = new Intent(MainActivity.this, Principal.class);
+                                Intent intent = new Intent(MainActivity.this, Menu.class);
                                 startActivity(intent);
                             }
                         }
