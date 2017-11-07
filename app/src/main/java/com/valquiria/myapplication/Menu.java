@@ -12,6 +12,7 @@ public class Menu extends AppCompatActivity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         findViewById(R.id.ruta).setOnClickListener(this);
+        findViewById(R.id.recorridos).setOnClickListener(this);
     }
     public void onClick(View v) {
         switch (v.getId())
@@ -21,7 +22,7 @@ public class Menu extends AppCompatActivity implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.recorridos:
-                Intent intent1 = new Intent(Menu.this, Principal.class);
+                Intent intent1 = new Intent(Menu.this, Recorrido.class);
                 startActivity(intent1);
                 break;
 

@@ -111,6 +111,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     DatabaseReference myRef;
     public static final String PATH_LOCATION = "locations/";
     public static final String PATH_USERS = "users/";
+    public static final String PATH_RECORRIDOS = "recorridos/";
     Localizacion localiza;
     private ProgressDialog mProgress;
     public	final	static	double	RADIUS_OF_EARTH_KM	 =	6371;
@@ -122,6 +123,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
         findViewById(R.id.guardar).setOnClickListener(this);
+        findViewById(R.id.recorrido).setOnClickListener(this);
         kilometros = (TextView) findViewById(R.id.kilometros);
         mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
@@ -182,7 +184,8 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
             case R.id.guardar:
                 registros();
                 break;
-
+            case R.id.recorrido:
+                registrosRecorrido();
 
         }
     }
@@ -228,12 +231,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                 ruta.setFecha(Calendar.getInstance().getTime());
                 ruta.setTiempo(tiempo);
                 myRef = database.getReference(PATH_USERS + user.getUid());
-                myRef.child("origen").setValue(local);
-                myRef.child("destino").setValue(local1);
-                myRef.child("fecha").setValue(Calendar.getInstance().getTime());
-                myRef.child("distancia").setValue(dis);
-                myRef.child("tiempo").setValue(tiempo);
-                myRef.child("Ruta").push().setValue(ruta);
+                myRef.child("ruta").push().setValue(ruta);
 
 
                 Toast.makeText(Principal.this, "Ruta guardada",	Toast.LENGTH_SHORT).show();
@@ -247,6 +245,68 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         }
 
     }
+    private void registrosRecorrido() {
+        mProgress.setMessage("Guardado Ruta... Espere por favor...");
+        mProgress.show();
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user != null) {    //Update	user	Info
+            UserProfileChangeRequest.Builder upcrb = new UserProfileChangeRequest.Builder();
+            Usuarios myUser = new Usuarios();
+            mAddress = (EditText) findViewById(R.id.texto);
+            mAddress1 = (EditText) findViewById(R.id.texto1);
+            Ruta ruta = new Ruta();
+            Localizacion local =  new Localizacion();
+            Localizacion local1= new Localizacion();
+            String addressString = mAddress.getText().toString();
+            String addressString1 = mAddress1.getText().toString();
+            final Geocoder mGeocoder = new Geocoder(getBaseContext());
+            try {
+                List<Address> addresses = mGeocoder.getFromLocationName(
+                        addressString, 2,
+                        lowerLeftLatitude,
+                        lowerLeftLongitude,
+                        upperRightLatitude,
+                        upperRigthLongitude);
+                List<Address> addresses1 = mGeocoder.getFromLocationName(
+                        addressString1, 2,
+                        lowerLeftLatitude,
+                        lowerLeftLongitude,
+                        upperRightLatitude,
+                        upperRigthLongitude);
+                Address addressResult = addresses.get(0);
+                Address addressResult1 = addresses1.get(0);
+                //---------------------------
+                local.setLatitude(addressResult.getLatitude());
+                local.setLongitude(addressResult.getLongitude());
+                local.setName(addressString);
+                local1.setLatitude(addressResult1.getLatitude());
+                local1.setLongitude(addressResult1.getLongitude());
+                local1.setName(addressString1);
+                Double dis = distance(addressResult.getLatitude(),addressResult.getLongitude(),addressResult1.getLatitude(),addressResult1.getLongitude());
+                ruta.setOrigen(local);
+                ruta.setDestino(local1);
+                ruta.setDistancia(dis);
+                ruta.setFecha(Calendar.getInstance().getTime());
+                ruta.setTiempo(tiempo);
+                myRef = database.getReference(PATH_RECORRIDOS );
+                myRef.child("Ruta").push().setValue(ruta);
+
+
+                Toast.makeText(Principal.this, "Recorrido guardado",	Toast.LENGTH_SHORT).show();
+                mProgress.dismiss();
+                myRef = database.getReference("message");
+                myRef.setValue("Ruta guardada!");
+                Intent intent = new Intent(Principal.this, Recorrido.class);
+                startActivity(intent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+
     public void pedirPermisoLocalizacion()
     {
         int permissionCheck= ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION);

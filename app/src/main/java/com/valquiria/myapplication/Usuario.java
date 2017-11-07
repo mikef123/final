@@ -164,10 +164,6 @@ public class Usuario extends AppCompatActivity implements View.OnClickListener {
 
                             }
                         }
-
-
-
-
     }
 
 
