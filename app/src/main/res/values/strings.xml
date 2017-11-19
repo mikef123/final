@@ -11,4 +11,5 @@
     <string name="hintAddress1">Ingrese punto de destino</string>
     <string name="title_activity_usuario">Usuario</string>
     <string name="title_activity_recorrido">Recorrido</string>
+    <string name="report_planned_date">Fecha de recorrido</string>
 </resources>

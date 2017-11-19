@@ -124,6 +124,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
         setContentView(R.layout.activity_principal);
         findViewById(R.id.guardar).setOnClickListener(this);
         findViewById(R.id.recorrido).setOnClickListener(this);
+        findViewById(R.id.etPlannedDate).setOnClickListener(this);
         kilometros = (TextView) findViewById(R.id.kilometros);
         mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
@@ -186,9 +187,14 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                 break;
             case R.id.recorrido:
                 registrosRecorrido();
+                break;
+
 
         }
     }
+
+
+
     private void registros() {
         mProgress.setMessage("Guardado Ruta... Espere por favor...");
         mProgress.show();
@@ -288,8 +294,10 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                 ruta.setDistancia(dis);
                 ruta.setFecha(Calendar.getInstance().getTime());
                 ruta.setTiempo(tiempo);
+                String nombre = user.getDisplayName();
+                ruta.setUsuario(nombre);
                 myRef = database.getReference(PATH_RECORRIDOS );
-                myRef.child("Ruta").push().setValue(ruta);
+                myRef.child("ruta").push().setValue(ruta);
 
 
                 Toast.makeText(Principal.this, "Recorrido guardado",	Toast.LENGTH_SHORT).show();

@@ -12,6 +12,8 @@ public class Ruta {
     Date fecha;
     Double distancia;
     String tiempo;
+    String usuario;
+
 
     public Ruta() {
     }
@@ -54,6 +56,14 @@ public class Ruta {
 
     public void setTiempo(String tiempo) {
         this.tiempo = tiempo;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 }
 

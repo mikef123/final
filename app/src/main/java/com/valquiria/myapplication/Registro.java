@@ -53,6 +53,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
     private ProgressDialog mProgress;
     private StorageReference mStorageRef;
     private Uri imageUri;
+    private UserProfileChangeRequest.Builder upcrb = null;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     StorageReference storageReference = storage.getReference();
     FirebaseDatabase database;
@@ -65,8 +66,8 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
         database=	FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
         mStorageRef = FirebaseStorage.getInstance().getReference();
-        String objeto = (String) getIntent().getExtras().getString("correo");
-        String objeto1 = (String) getIntent().getExtras().getString("contraseña");
+        String objeto = getIntent().getExtras().getString("correo");
+        String objeto1 = getIntent().getExtras().getString("contraseña");
         setContentView(R.layout.activity_registro);
         nombre = (EditText) findViewById(R.id.nombre);
         apellido = (EditText) findViewById(R.id.apellido);
@@ -161,12 +162,14 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                     @Override
                     public	void	onComplete(@NonNull Task<AuthResult> task)	{
                         mProgress.dismiss();
+                        upcrb = new UserProfileChangeRequest.Builder();
+                        upcrb.setDisplayName(nombre.getText().toString().toUpperCase());
                         if(task.isSuccessful()){
 
                             Log.d(TAG,	"createUserWithEmail:onComplete:"	+	task.isSuccessful());
                             FirebaseUser user	=	mAuth.getCurrentUser();
                             if(user!=null){	//Update	user	Info
-                                UserProfileChangeRequest.Builder upcrb =	new	UserProfileChangeRequest.Builder();
+                                final UserProfileChangeRequest.Builder upcrb =	new	UserProfileChangeRequest.Builder();
                                 upcrb.setDisplayName(nombre.getText().toString()+"	 "+apellido.getText().toString());
                                 upcrb.setPhotoUri(Uri.parse("path/to/pic"));//fake	 uri,	real	one	coming	soon
                                 user.updateProfile(upcrb.build());
@@ -178,15 +181,38 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                                 myUser.setContraseña(contraseña.getText().toString());
                                 myUser.setTipo("Persona");
                                 myRef=database.getReference(PATH_USERS+user.getUid());
+                                final Uri file = imageUri;
+
+                                upcrb.setDisplayName(nombre.getText().toString().toUpperCase());
+                                StorageReference riversRef = mStorageRef.child(mAuth.getCurrentUser().getUid());
+                                riversRef.putFile(file)
+                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                upcrb.setPhotoUri(imageUri);
+                                               //Toast.makeText(RegistroActivity.this, "Correcto subir imagen", Toast.LENGTH_SHORT).show();
+                                               // avanzar(upcrb);
+                                               // mProgressDialog.dismiss();
+                                                imageUri = null;
+                                            }
+                                        })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception exception) {
+                                                imageUri = null;
+                                                upcrb.setPhotoUri(imageUri);
+                                                //Toast.makeText(RegistroActivity.this, "Error al subir imagen", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            } else {
+                                //Toast.makeText(RegistroActivity.this, "Seleccione una imagen de perfil", Toast.LENGTH_SHORT).show();
+                                //avanzar(upcrb);
+                            }
                                 myRef.setValue(myUser);
                                 startActivity(new	Intent(Registro.this,	Principal.class));	//o		en	el	listener
-                            }
+
                         }
-                        if	(!task.isSuccessful())	 {
-                            Toast.makeText(Registro.this,		R.string.auth_failed+	task.getException().toString(),
-                                    Toast.LENGTH_SHORT).show();
-                            Log.e(TAG,	task.getException().getMessage());
-                        }
+
                     }
                 });
 

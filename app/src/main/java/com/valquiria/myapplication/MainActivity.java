@@ -15,16 +15,39 @@ package com.valquiria.myapplication;
         import android.widget.EditText;
         import android.widget.Toast;
 
+        import com.facebook.AccessToken;
+        import com.facebook.AccessTokenTracker;
+        import com.facebook.CallbackManager;
+        import com.facebook.FacebookCallback;
+        import com.facebook.FacebookException;
+        import com.facebook.FacebookSdk;
+        import com.facebook.GraphRequest;
+        import com.facebook.GraphResponse;
+        import com.facebook.Profile;
+        import com.facebook.ProfileTracker;
+        import com.facebook.login.LoginManager;
+        import com.facebook.login.LoginResult;
+        import com.facebook.login.widget.LoginButton;
         import com.google.android.gms.tasks.OnCompleteListener;
+        import com.google.android.gms.tasks.OnFailureListener;
+        import com.google.android.gms.tasks.OnSuccessListener;
         import com.google.android.gms.tasks.Task;
+        import com.google.firebase.auth.AuthCredential;
         import com.google.firebase.auth.AuthResult;
+        import com.google.firebase.auth.FacebookAuthProvider;
         import com.google.firebase.auth.FirebaseAuth;
         import com.google.firebase.auth.FirebaseUser;
+        import com.google.firebase.auth.UserProfileChangeRequest;
         import com.google.firebase.database.DataSnapshot;
         import com.google.firebase.database.DatabaseError;
         import com.google.firebase.database.DatabaseReference;
         import com.google.firebase.database.FirebaseDatabase;
         import com.google.firebase.database.ValueEventListener;
+
+        import org.json.JSONException;
+        import org.json.JSONObject;
+
+        import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,7 +57,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button upc;
     EditText correo;
     EditText contraseña;
-
+/*
+    private LoginButton face;
+    private CallbackManager callbackManager;
+    private AccessTokenTracker accessTokenTracker;
+    private ProfileTracker profileTracker;
+    private LoginButton loginButton;
+    private UserProfileChangeRequest.Builder upcrb = null;
+    private String email = null;
+    private int cont = 0;
+*/
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     FirebaseDatabase database;
@@ -45,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_main);
         database=	FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -70,8 +103,58 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
 
-        };
+        };/*
+        if(FirebaseAuth.getInstance().getCurrentUser()==null) {
+            callbackManager = CallbackManager.Factory.create();
+            loginButton = (LoginButton) findViewById(R.id.login_button);
+            loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(final LoginResult loginResult) {
+                    LoginManager.getInstance().logInWithReadPermissions(
+                            MainActivity.this, Arrays.asList("email")
+                    );
 
+                    final AccessToken accessToken = loginResult.getAccessToken();
+                    final Profile profile = Profile.getCurrentProfile();
+
+                    GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(JSONObject object, GraphResponse response) {
+                            final JSONObject json = response.getJSONObject();
+                            try {
+                                if (json != null) {
+                                    // System.out.println("email es: "+json.getString("email"));
+                                    email = json.getString("email");
+                                    if (profile != null && cont == 0) {// acá ya tiene todo aceptado y entra primera vez
+                                        cont ++;
+                                        registrar(accessToken);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+
+                    Bundle parameters = new Bundle();
+                    parameters.putString("fields", "email");
+                    request.setParameters(parameters);
+                    request.executeAsync();
+
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+
+                @Override
+                public void onError(FacebookException error) {
+
+                }
+            });
+
+        }*/
         upc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -158,18 +241,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void createAccount(String email, String password)
     {
-        Log.d(TAG, "createAccount" + email);
-        if(!validateForm()|| !isEmailValid(email))
-        {
-            return;
-        }
-    else {
+
         Intent intent = new Intent(MainActivity.this, Registro.class);
         intent.putExtra("correo", correo.getText().toString());
         intent.putExtra("contraseña", contraseña.getText().toString());
         startActivity(intent);
 
-    }
+
                         }
 
 
@@ -246,5 +324,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+/*
+    private void registrar(AccessToken token){
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+            @Override
+            public void onSuccess(AuthResult authResult) {
+                final FirebaseUser userr = mAuth.getCurrentUser();
+                myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                if (!dataSnapshot.hasChildren()){
+                                    final Profile profile = Profile.getCurrentProfile();
+                                    upcrb = new UserProfileChangeRequest.Builder();
+                                    upcrb.setDisplayName(profile.getName().toUpperCase());
+                                    upcrb.setPhotoUri(null);
+                                    userr.updateEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                        }
+                                    });
+                                    userr.updateProfile(upcrb.build()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Usuarios us = new Usuarios();
+                                            us.setNombre(profile.getName().toUpperCase());
+                                            us.setCorreo(email);
+                                            myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                                                    .setValue(us).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    Toast.makeText(MainActivity.this, "Error guardar datos en servidor", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(MainActivity.this, "Error registrando con Facebook "+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }*/
 }
 
