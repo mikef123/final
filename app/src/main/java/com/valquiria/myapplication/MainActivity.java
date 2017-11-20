@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button upc;
     EditText correo;
     EditText contraseña;
-/*
+
     private LoginButton face;
     private CallbackManager callbackManager;
     private AccessTokenTracker accessTokenTracker;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private UserProfileChangeRequest.Builder upcrb = null;
     private String email = null;
     private int cont = 0;
-*/
+
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     FirebaseDatabase database;
@@ -81,10 +81,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         database=	FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
-        //login = (Button) findViewById(R.id.login);
-        //sign = (Button) findViewById(R.id.sign);
+        login = (Button) findViewById(R.id.login);
+        sign = (Button) findViewById(R.id.sign);
         correo = (EditText) findViewById(R.id.correo);
         contraseña = (EditText) findViewById(R.id.contraseña);
+        callbackManager = CallbackManager.Factory.create();
+        loginButton = (LoginButton) findViewById(R.id.login_button);
         findViewById(R.id.login).setOnClickListener(this);
         findViewById(R.id.sign).setOnClickListener(this);
         upc = (Button) findViewById(R.id.upc);
@@ -103,7 +105,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
 
-        };/*
+        };
         if(FirebaseAuth.getInstance().getCurrentUser()==null) {
             callbackManager = CallbackManager.Factory.create();
             loginButton = (LoginButton) findViewById(R.id.login_button);
@@ -154,7 +156,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
 
-        }*/
+        }
         upc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -235,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     {
         if(user != null)
         {
-            //findViewById(R.id.sign).setVisibility(View.GONE);
+            findViewById(R.id.sign).setVisibility(View.GONE);
         }
     }
 
@@ -324,7 +326,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
-/*
+
     private void registrar(AccessToken token){
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
@@ -380,6 +382,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-    }*/
+    }
 }
 
