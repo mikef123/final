@@ -117,7 +117,11 @@
         <activity android:name=".PrincipalEmpresa" />
         <activity android:name=".AgregarIndicador" />
         <activity android:name=".Menu" />
-        <activity android:name=".Recorrido"></activity>
+        <activity android:name=".Recorrido"/>
+        <activity android:name=".view.ContainerActivity" >
+
+        </activity>
+
     </application>
 
 
