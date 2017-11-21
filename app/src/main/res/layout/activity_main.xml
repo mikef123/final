@@ -56,28 +56,33 @@
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp" />
-
         <Button
             android:id="@+id/login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="60dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:text="LOGIN"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/contraseña" />
+            app:layout_constraintRight_toRightOf="@+id/sign"
+            app:layout_constraintTop_toBottomOf="@+id/contraseña"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/sign"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
-            android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="Sign UP"
+            app:layout_constraintLeft_toLeftOf="@+id/login"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/login"
-            app:layout_constraintTop_toBottomOf="@+id/contraseña" />
+            app:layout_constraintTop_toBottomOf="@+id/contraseña"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp" />
 
         <Button
             android:id="@+id/upc"

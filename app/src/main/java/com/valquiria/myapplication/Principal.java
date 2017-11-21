@@ -85,7 +85,7 @@ import java.util.List;
 
 import static android.R.attr.name;
 
-public class Principal extends AppCompatActivity implements OnMapReadyCallback,View.OnClickListener {
+public class Principal extends AppCompatActivity implements OnMapReadyCallback, View.OnClickListener {
     public static final String TAG = MainActivity.class.getSimpleName();
     private GoogleMap mMap;
     private LocationCallback mLocationCallback;
@@ -93,6 +93,7 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     private FirebaseAuth.AuthStateListener mAuthListener;
     EditText mAddress;
     EditText mAddress1;
+    EditText fecha;
     TextView kilometros;
     String la;
     String lo;
@@ -114,17 +115,18 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
     public static final String PATH_RECORRIDOS = "recorridos/";
     Localizacion localiza;
     private ProgressDialog mProgress;
-    public	final	static	double	RADIUS_OF_EARTH_KM	 =	6371;
-   Spinner spinner;
+    public final static double RADIUS_OF_EARTH_KM = 6371;
+    Spinner spinner;
     String tiempo;
-    String[] letra = {" ", "Nublado","Soleado","Lluvioso","Despejado",};
+    String[] letra = {" ", "Nublado", "Soleado", "Lluvioso", "Despejado",};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
         findViewById(R.id.guardar).setOnClickListener(this);
         findViewById(R.id.recorrido).setOnClickListener(this);
-        findViewById(R.id.etPlannedDate).setOnClickListener(this);
+        fecha = (EditText) findViewById(R.id.fecha);
         kilometros = (TextView) findViewById(R.id.kilometros);
         mProgress = new ProgressDialog(this);
         database = FirebaseDatabase.getInstance();
@@ -147,23 +149,43 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
                 Location location = locationResult.getLastLocation();
                 Log.i("LOCATION", "Location	update	in	the	callback:	" + location);
                 if (location != null) {
-                    la=String.valueOf(location.getLatitude());
-                    lo=String.valueOf(location.getLongitude());
+                    la = String.valueOf(location.getLatitude());
+                    lo = String.valueOf(location.getLongitude());
 
                 }
             }
         };
-        mFusedLocationClient.getLastLocation().addOnSuccessListener(this,	 new
-                OnSuccessListener<Location>()	 {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mFusedLocationClient.getLastLocation().addOnSuccessListener(this, new
+                OnSuccessListener<Location>() {
                     @Override
-                    public	void	onSuccess(Location	 location)	 {
-                        Log.i("LOCATION",	 "onSuccess location");
-                        if	(location	 !=	null)	{
-                            la=String.valueOf(location.getLatitude());
-                            lo=String.valueOf(location.getLongitude());
+                    public void onSuccess(Location location) {
+                        Log.i("LOCATION", "onSuccess location");
+                        if (location != null) {
+                            la = String.valueOf(location.getLatitude());
+                            lo = String.valueOf(location.getLongitude());
                         }
                     }
-                    });
+                });
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
@@ -178,6 +200,33 @@ public class Principal extends AppCompatActivity implements OnMapReadyCallback,V
             public void onNothingSelected(AdapterView<?> parent)
             {    }
         });
+
+
+        final Geocoder mGeocoder = new Geocoder(getBaseContext());
+        mAddress = (EditText) findViewById(R.id.texto);
+        mAddress1 = (EditText) findViewById(R.id.texto1);
+        //set focus and show keyboard
+        mAddress.requestFocus();
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+        mAddress1.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == R.id.action_custom || actionId == EditorInfo.IME_ACTION_SEND || actionId == EditorInfo.IME_ACTION_UNSPECIFIED || actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE) {
+                    // hide keyboard
+                    InputMethodManager inputMethodManager = (InputMethodManager) mAddress1.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputMethodManager.hideSoftInputFromWindow(mAddress1.getWindowToken(), 0);
+                    busqueda(mGeocoder);
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
+
+
     }
     public void onClick(View v) {
         switch (v.getId())

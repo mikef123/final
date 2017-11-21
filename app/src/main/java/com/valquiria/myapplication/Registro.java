@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -180,6 +181,7 @@ public class Registro extends AppCompatActivity implements View.OnClickListener{
                                 myUser.setCorreo(correo.getText().toString());
                                 myUser.setContraseña(contraseña.getText().toString());
                                 myUser.setTipo("Persona");
+                                myUser.setId( FirebaseInstanceId.getInstance().getToken());
                                 myRef=database.getReference(PATH_USERS+user.getUid());
                                 final Uri file = imageUri;
 

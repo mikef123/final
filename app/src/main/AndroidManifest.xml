@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.valquiria.myapplication">
 
     <!--
@@ -20,7 +21,8 @@
 
     <activity
         android:name="com.facebook.CustomTabActivity"
-        android:exported="true">
+        android:exported="true"
+        tools:ignore="WrongManifestParent">
         <intent-filter>
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
@@ -48,6 +50,7 @@
     </dependency>
 
     <application
+
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -61,6 +64,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity android:name=".Principal" />
         <activity android:name=".Registro" />
@@ -121,7 +125,18 @@
         <activity android:name=".view.ContainerActivity" >
 
         </activity>
-
+       <!-- <service
+            android:name=".Mensajeria">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>-->
+        <service
+            android:name=".Mensajeria">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 

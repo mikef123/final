@@ -17,6 +17,7 @@ public class Usuarios {
     Double distancia;
     String tiempo;
     String tipo;
+    String id;
 
     public String getNombre() {
         return nombre;
@@ -93,4 +94,12 @@ public class Usuarios {
     public String getTipo() { return tipo; }
 
     public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }
