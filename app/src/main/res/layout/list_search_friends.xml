@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="100dp">
+
+    <ImageView
+        android:id="@+id/img_adapterlist_photo"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout_weight="0.2"
+ />
+
+    <TextView
+        android:id="@+id/txt_adapter_name"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:text="Nombre amigo"
+        android:layout_weight="0.5"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"/>
+
+    <Button
+        android:id="@+id/btn_adapter_message"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:text="Mensaje"
+        android:textSize="11sp"
+        android:layout_weight="0.2"
+        android:layout_gravity="center"
+        android:background="@drawable/button"
+        android:textColor="@color/blanco"/>
+
+    <Button
+        android:id="@+id/btn_adapter_delete"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:text="Eliminar"
+        android:textSize="11sp"
+        android:layout_weight="0.2"
+        android:layout_gravity="center"
+        android:background="@drawable/button"
+        android:textColor="@color/blanco"/>
+
+    <Button
+        android:id="@+id/btn_adapter_add"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:text="Agregar"
+        android:textSize="11sp"
+        android:layout_weight="0.2"
+        android:layout_gravity="center"
+        android:background="@drawable/button"
+        android:textColor="@color/blanco"/>
+</LinearLayout>
