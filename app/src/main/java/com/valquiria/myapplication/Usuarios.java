@@ -1,6 +1,7 @@
 package com.valquiria.myapplication;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by murquijo on 2017-10-23.
@@ -17,6 +18,13 @@ public class Usuarios {
     Double distancia;
     String tiempo;
     String tipo;
+    String id;
+
+    private List<Recorrido> creados;
+
+    private List<ChatMessage> bandejaEntrada;
+
+    private List<ChatMessage> bandejaSalida;
 
     public String getNombre() {
         return nombre;
@@ -93,4 +101,16 @@ public class Usuarios {
     public String getTipo() { return tipo; }
 
     public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void enviarMensaje(String contenido, Usuarios receptor){
+        bandejaSalida.add(new ChatMessage(contenido, receptor.getId()));
+    }
 }
