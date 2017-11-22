@@ -5,6 +5,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.valquiria.myapplication.view.ContainerActivity;
+
 public class Menu extends AppCompatActivity implements View.OnClickListener {
 
     @Override
@@ -13,6 +15,7 @@ public class Menu extends AppCompatActivity implements View.OnClickListener {
         setContentView(R.layout.activity_menu);
         findViewById(R.id.ruta).setOnClickListener(this);
         findViewById(R.id.recorridos).setOnClickListener(this);
+        findViewById(R.id.instagram).setOnClickListener(this);
     }
     public void onClick(View v) {
         switch (v.getId())
@@ -24,6 +27,10 @@ public class Menu extends AppCompatActivity implements View.OnClickListener {
             case R.id.recorridos:
                 Intent intent1 = new Intent(Menu.this, Recorrido.class);
                 startActivity(intent1);
+                break;
+            case R.id.instagram:
+                Intent intent2 = new Intent(Menu.this, ContainerActivity.class);
+                startActivity(intent2);
                 break;
 
         }

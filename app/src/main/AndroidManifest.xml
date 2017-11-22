@@ -96,7 +96,15 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
+        <activity android:name=".view.PictureDetailActivity"
+            android:parentActivityName=".view.ContainerActivity"
+            >
 
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.ContainerActivity" />
+
+        </activity>
 
         <activity
             android:name=".MapsActivity"
@@ -109,7 +117,12 @@
         <activity android:name=".PrincipalEmpresa" />
         <activity android:name=".AgregarIndicador" />
         <activity android:name=".Menu" />
-        <activity android:name=".Recorrido"></activity>
+        <activity android:name=".Recorrido"/>
+        <activity android:name=".view.ContainerActivity" >
+
+        </activity>
+
     </application>
+
 
 </manifest>
