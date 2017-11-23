@@ -16,6 +16,7 @@ public class Menu extends AppCompatActivity implements View.OnClickListener {
         findViewById(R.id.ruta).setOnClickListener(this);
         findViewById(R.id.recorridos).setOnClickListener(this);
         findViewById(R.id.instagram).setOnClickListener(this);
+        findViewById(R.id.buttonChat).setOnClickListener(this);
     }
     public void onClick(View v) {
         switch (v.getId())
@@ -31,6 +32,10 @@ public class Menu extends AppCompatActivity implements View.OnClickListener {
             case R.id.instagram:
                 Intent intent2 = new Intent(Menu.this, ContainerActivity.class);
                 startActivity(intent2);
+                break;
+            case R.id.buttonChat:
+                Intent intent3= new Intent(Menu.this, Amigo.class);
+                startActivity(intent3);
                 break;
 
         }

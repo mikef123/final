@@ -6,7 +6,7 @@ import java.util.Date;
  * Created by murquijo on 2017-10-24.
  */
 
-public class Localizacion {
+public class    Localizacion {
     String name;
     Double latitude;
     Double longitude;

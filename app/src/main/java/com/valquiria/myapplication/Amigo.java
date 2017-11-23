@@ -64,6 +64,9 @@ public class Amigo extends AppCompatActivity implements View.OnClickListener {
             public void onClick(View view) {
                 Snackbar.make(view, "Enviar Mensaje", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                startActivity(new Intent(Amigo.this, Chat.class));
+
             }
         });
 

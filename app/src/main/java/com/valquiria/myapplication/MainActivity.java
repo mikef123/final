@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final String TAG = MainActivity.class.getSimpleName();
     Button login ;
     Button sign;
-    Button upc;
     EditText correo;
     EditText contraseña;
 
@@ -89,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loginButton = (LoginButton) findViewById(R.id.login_button);
         findViewById(R.id.login).setOnClickListener(this);
         findViewById(R.id.sign).setOnClickListener(this);
-        upc = (Button) findViewById(R.id.upc);
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -157,14 +155,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
 
         }
-        upc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                System.out.println("Entro");
-                Intent intent = new Intent(MainActivity.this, RegistroEmpresa.class);
-                startActivity(intent);
-            }
-        });
 
     }
     @Override
